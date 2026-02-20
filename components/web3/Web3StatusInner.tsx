@@ -10,6 +10,7 @@ import { useBABTBalanceOf } from '@/hooks/useContract';
 import { gamerEmailInfoAtom } from '@/store/gamer/state';
 import Popover from '../popover';
 import { useLogoutCallback } from '@/hooks/user';
+import { useNativeBalance } from '@/hooks/useNativeBalance';
 
 function Web3StatusInner() {
   const { address, connector } = useAccount();
@@ -18,6 +19,8 @@ function Web3StatusInner() {
   const setIsBABTHolder = useSetRecoilState(isBABTHolderAtom);
   const isBABTHolder = useMemo(() => !!(balance && balance.toString() !== '0'), [balance]);
   const logout = useLogoutCallback();
+
+  const { balance: nativeBalance, symbol, isLoading: balanceLoading, isError: balanceError } = useNativeBalance(address);
 
   useEffect(() => {
     if (!address) return;
@@ -63,6 +66,9 @@ function Web3StatusInner() {
           )}
         >
           <p className={classNames(isBABTHolder && 'font-medium text-black')}>{shortenAddress(address)}</p>
+          <p className={classNames('ml-2 text-xs opacity-75', isBABTHolder ? 'text-black' : 'text-white')}>
+            {balanceLoading ? '...' : balanceError || nativeBalance === null ? `-- ${symbol}` : `${nativeBalance} ${symbol}`}
+          </p>
           <div className="ml-3 h-6.5 w-6.5 overflow-hidden rounded-full border border-white bg-p12-gradient sm:hidden">
             {isBABTHolder ? (
               <img
@@ -83,3 +89,4 @@ function Web3StatusInner() {
 }
 
 export default Web3StatusInner;
+
